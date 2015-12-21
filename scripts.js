@@ -14,7 +14,7 @@
                 window.location = 'http://localhost:3001/chatt'
             }
         });
-
+        //Instead of using jquery to post, can use socket to emit our add user (similar to connection I think?)
         //        socket.emit("add user", username);
     };
 //});
