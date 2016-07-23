@@ -48,8 +48,6 @@ var io = require('socket.io').listen(app.listen(port, function () {
 
 //change the emit and on if not using a seperate js file...
 io.on('connection', function (socket) {
-    console.log('a user connected');
-
     socket.on('join', function (name) {
         people[socket.id] = name;
         //this only emits to the unique user
@@ -60,8 +58,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('chat message', function (msg) {
-        console.log('message being sent: ' + msg);
+        console.log('message being sent: ' + msg + ' by ' + people[socket.id]);
         io.emit('chat message', msg);
+        io.emit("chat", people[socket.id], msg);
     });
 
     socket.on("disconnect", function(){
