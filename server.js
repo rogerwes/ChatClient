@@ -48,6 +48,11 @@ var io = require('socket.io').listen(app.listen(port, function () {
 
 //change the emit and on if not using a seperate js file...
 io.on('connection', function (socket) {
+
+    socket.on('gameUpdate', function(coords){
+       console.log("games updated " + coords);
+    });
+
     socket.on('join', function (name) {
         people[socket.id] = name;
         //this only emits to the unique user

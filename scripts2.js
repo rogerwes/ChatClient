@@ -27,6 +27,9 @@ $(document).ready(function () {
                 $("#chat").show();
                 $("#msg").focus();
             }
+            else{
+                alert("You must enter in a name!");
+            }
         }
     });
 
@@ -68,7 +71,8 @@ $(document).ready(function () {
     $("#msg").keypress(function (e) {
         if (e.which == 13) {
             var msg = $("#msg").val();
-            socket.emit("send", msg);
+            console.log('message clicked')
+            socket.emit("chat message", msg);
             $("#msg").val("");
         }
     });
