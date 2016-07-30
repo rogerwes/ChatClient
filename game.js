@@ -9,28 +9,33 @@ $(document).ready(function () {
 
     function preload() {
 
-        game.load.image('background', 'assets/sky.png');
+        game.load.image('sky', 'assets/sky.png');
         game.load.image('player', 'assets/particle.png');
         game.load.image('platform', 'assets/ground.png');
+        game.load.image('baddie', 'assets/baddie.png');
         //game.load.spritesheet('player','images/jump.png', 16, 16);//length, height
     }
 
 
     var player;
     var cursors;
-    var people = {};
+    var people;
     var platforms;
     var jumpButton;
+    var doubleJump = false;
+
 
     function create() {
+        //  A simple background for our game
+        game.add.sprite(0, 0, 'sky');
 
         player = game.add.sprite(100, 200, 'player');
 
         game.physics.arcade.enable(player);
 
         player.body.collideWorldBounds = true;
-        player.body.gravity.y = 500;
-
+        player.body.gravity.y = 1000;
+        player.JumpState = JumpState.onGround;
         platforms = game.add.physicsGroup();
 
         platforms.create(500, 150, 'platform');
@@ -38,6 +43,30 @@ $(document).ready(function () {
         platforms.create(400, 450, 'platform');
 
         platforms.setAll('body.immovable', true);
+
+
+        people = game.add.group();
+        people.enableBody = true;
+
+        for (var i = 0; i < 3; i++) {
+            var person = people.create(i * 70, 30 * i, 'baddie');
+            person.body.gravity.y = 250;
+            person.body.bounce.y = .3 + Math.random() * .5;
+            person.body.collideWorldBounds = true;
+            /* Create a star inside of the 'stars'
+
+            player.body.collideWorldBounds = true;
+
+             group
+             var star = stars.create(i * 70, 0, 'star');
+
+             //  Let gravity do its thing
+             star.body.gravity.y = 300;
+
+             //  This just gives each star a slightly random bounce value
+             star.body.bounce.y = 0.3 + Math.random() * 0.5;*/
+
+        }
 
         cursors = game.input.keyboard.createCursorKeys();
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -75,7 +104,8 @@ $(document).ready(function () {
 
     function update() {
         game.physics.arcade.collide(player, platforms);
-
+        game.physics.arcade.collide(people, platforms);
+        game.physics.arcade.collide(people, player);
         player.body.velocity.x = 0;
 
         if (cursors.left.isDown) {
@@ -84,9 +114,27 @@ $(document).ready(function () {
             player.body.velocity.x = 250;
         }
 
+        if (player.body.onFloor()) {
+            player.JumpState = JumpState.onGround;
+        }
+
         if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down)) {
             player.body.velocity.y = -400;
+            doubleJump = true; //activate the double jump
+            console.log('single jumping');
+            player.JumpState = JumpState.jumping;
+        } /*else if (!player.body.onFloor() && jumpButton.isDown && doubleJump) { // && player.body.velocity.y >= 0){
+            player.body.velocity.y = -400;
+            console.log('double jupmppp');
+            doubleJump = false;
+        }*/
+        else if(player.JumpState == JumpState.jumping && jumpButton.isDown){
+            player.JumpState = JumpState.doubleJumping;
+            player.body.velocity.y = -200;
         }
+
+
+        //console.log(doubleJump);
         //        var x = player.x;
         //        var y = player.y;
         //
@@ -123,5 +171,10 @@ $(document).ready(function () {
         //game.debug.cameraInfo(game.camera, 32, 32);
         game.debug.spriteCoords(player, 32, 500);
 
+    }
+    var JumpState = {
+        onGround: 'canJump, is on grouind',
+        jumping: 'on first jump',
+        doubleJumping: 'doubleJumping'
     }
 })
