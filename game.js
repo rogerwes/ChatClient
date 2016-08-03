@@ -1,5 +1,14 @@
 $(document).ready(function () {
     var socket = io.connect('http://localhost:3001');
+    var player;
+    var cursors;
+    var people;
+    var platforms;
+    var jumpButton;
+    var doubleJump = false;
+
+    // Setup the Phaser object, and define the functions for
+    // the core game logic
     var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser socket game', {
         preload: preload,
         create: create,
@@ -14,15 +23,6 @@ $(document).ready(function () {
         game.load.image('baddie', 'assets/baddie.png');
     }
 
-
-    var player;
-    var cursors;
-    var people;
-    var platforms;
-    var jumpButton;
-    var doubleJump = false;
-
-
     function create() {
         //  A simple background for our game
         game.add.sprite(0, 0, 'sky');
@@ -31,7 +31,7 @@ $(document).ready(function () {
         player = game.add.sprite(100, 200, 'player');
         game.physics.arcade.enable(player);
         player.body.collideWorldBounds = true;
-        player.body.gravity.y = 1000;
+        player.body.gravity.y = 800;
         player.canDoubleJump = true;
 
         // The platforms
@@ -62,14 +62,23 @@ $(document).ready(function () {
         game.physics.arcade.collide(player, platforms);
         game.physics.arcade.collide(people, platforms);
         game.physics.arcade.collide(people, player);
-        game.physics.arcade.collide(people, people);
+        if(game.physics.arcade.collide(people, people)){
+            //we should bounce the baddies off of each other somehow.
+
+        }
         player.body.velocity.x = 0;
 
         // Left / Right input
         if (cursors.left.isDown) {
-            player.body.velocity.x = -250;
+            if (player.body.velocity.y > 0) {
+                player.body.velocity.x = -200;
+            } else
+                player.body.velocity.x = -250;
         } else if (cursors.right.isDown) {
-            player.body.velocity.x = 250;
+            if (player.body.velocity.y > 0) {
+                player.body.velocity.x = 200;
+            } else
+                player.body.velocity.x = 250;
         }
 
         // Jumping
@@ -78,8 +87,7 @@ $(document).ready(function () {
             doubleJump = true; //activate the double jump
             console.log('single jumping');
             player.canDoubleJump = true;
-        }
-        else if (!player.body.onFloor() && jumpButton.isDown && (player.body.velocity.y >= -50) && player.canDoubleJump) { // && player.body.velocity.y >= 0){
+        } else if (!player.body.onFloor() && jumpButton.isDown && (player.body.velocity.y >= -50) && player.canDoubleJump) { // && player.body.velocity.y >= 0){
             player.body.velocity.y = -400;
             console.log('double jupmppp');
             player.canDoubleJump = false;
