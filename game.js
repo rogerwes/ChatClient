@@ -83,7 +83,7 @@ $(document).ready(function () {
 
         // Jumping
         if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down)) {
-            player.body.velocity.y = -600;
+            player.body.velocity.y = -500;
             doubleJump = true; //activate the double jump
             console.log('single jumping');
             player.canDoubleJump = true;
