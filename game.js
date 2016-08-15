@@ -5,7 +5,6 @@ $(document).ready(function () {
     var people;
     var platforms;
     var jumpButton;
-    var doubleJump = false;
 
     // Setup the Phaser object, and define the functions for
     // the core game logic
@@ -32,7 +31,7 @@ $(document).ready(function () {
         game.physics.arcade.enable(player);
         player.body.collideWorldBounds = true;
         player.body.gravity.y = 800;
-        player.canDoubleJump = true;
+        player.canDoubleJump = false;
 
         // The platforms
         platforms = game.add.physicsGroup();
@@ -59,7 +58,7 @@ $(document).ready(function () {
     function update() {
         // Do collision detection, order appears to matter
         // as the people are going through the ground somehow
-        game.physics.arcade.collide(player, platforms);
+        var plat = (game.physics.arcade.collide(player, platforms))
         game.physics.arcade.collide(people, platforms);
         game.physics.arcade.collide(people, player);
         if(game.physics.arcade.collide(people, people)){
@@ -81,13 +80,19 @@ $(document).ready(function () {
                 player.body.velocity.x = 250;
         }
 
+        if(!plat && !player.body.onFloor()){
+            if(!jumpButton.isDown){
+                player.canDoubleJump = true;
+                console.log('can double');
+            }
+        }
+
         // Jumping
         if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down)) {
             player.body.velocity.y = -500;
-            doubleJump = true; //activate the double jump
             console.log('single jumping');
-            player.canDoubleJump = true;
-        } else if (!player.body.onFloor() && jumpButton.isDown && (player.body.velocity.y >= -50) && player.canDoubleJump) { // && player.body.velocity.y >= 0){
+            //player.canDoubleJump = true;
+        } else if (!player.body.onFloor() && !plat && jumpButton.isDown && (player.body.velocity.y >= -50) && player.canDoubleJump) { // && player.body.velocity.y >= 0){
             player.body.velocity.y = -400;
             console.log('double jupmppp');
             player.canDoubleJump = false;
