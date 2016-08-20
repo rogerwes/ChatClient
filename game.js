@@ -55,16 +55,22 @@ $(document).ready(function () {
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     }
 
+    function collisionHandler(p1, p2){
+     console.log("handled collision");
+    }
+
     function update() {
         // Do collision detection, order appears to matter
         // as the people are going through the ground somehow
         var plat = (game.physics.arcade.collide(player, platforms))
         game.physics.arcade.collide(people, platforms);
         game.physics.arcade.collide(people, player);
-        if(game.physics.arcade.collide(people, people)){
-            //we should bounce the baddies off of each other somehow.
+        (game.physics.arcade.collide(people, people, collisionHandler, null, this))
 
-        }
+
+        //    game.physics.arcade.overlap(bullets, veggies, collisionHandler, null, this);
+
+
         player.body.velocity.x = 0;
 
         // Left / Right input
