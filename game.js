@@ -32,6 +32,7 @@ $(document).ready(function () {
         player.body.collideWorldBounds = true;
         player.body.gravity.y = 800;
         player.canDoubleJump = false;
+        player.requireGround = false;
 
         // The platforms
         platforms = game.add.physicsGroup();
@@ -55,17 +56,23 @@ $(document).ready(function () {
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     }
 
-    function collisionHandler(p1, p2){
-     console.log("handled collision");
+    function collisionHandler(p1, p2) {
+        console.log("handled collision");
+        p1.body.velocity.x = -p1.body.velocity.x;
+        p2.body.velocity.x = -p2.body.velocity.x;
+    }
+
+    function handlepeopleplatforms(p1){
+        p1.body.velocity.x = -p1.body.velocity.x;
     }
 
     function update() {
         // Do collision detection, order appears to matter
         // as the people are going through the ground somehow
         var plat = (game.physics.arcade.collide(player, platforms))
-        game.physics.arcade.collide(people, platforms);
+        game.physics.arcade.collide(people, platforms, handlepeopleplatforms, null, this);
         game.physics.arcade.collide(people, player);
-        (game.physics.arcade.collide(people, people, collisionHandler, null, this))
+        game.physics.arcade.collide(people, people, collisionHandler, null, this);
 
 
         //    game.physics.arcade.overlap(bullets, veggies, collisionHandler, null, this);
@@ -86,11 +93,19 @@ $(document).ready(function () {
                 player.body.velocity.x = 250;
         }
 
-        if(!plat && !player.body.onFloor()){
-            if(!jumpButton.isDown){
-                player.canDoubleJump = true;
-                console.log('can double');
+        if (!plat && !player.body.onFloor()) {
+            if (!jumpButton.isDown) {
+                if (player.requireGround) {
+                    //need to ground before we can double jump
+                    player.canDoubleJump = false;
+                } else {
+                    player.canDoubleJump = true;
+                    console.log('can double');
+                }
             }
+        }
+        else{
+            player.requireGround = false;
         }
 
         // Jumping
@@ -102,6 +117,7 @@ $(document).ready(function () {
             player.body.velocity.y = -400;
             console.log('double jupmppp');
             player.canDoubleJump = false;
+            player.requireGround = true;
         }
     }
 
